@@ -12,6 +12,16 @@ void main(List<String> args) async {
     MaterialApp(
       title: 'Conversor de Moedas',
       home: Home(),
+      theme: ThemeData(
+          hintColor: Colors.amber,
+          primaryColor: Colors.white,
+          inputDecorationTheme: InputDecorationTheme(
+            enabledBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+            focusedBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+            hintStyle: TextStyle(color: Colors.amber),
+          )),
     ),
   );
 }
@@ -27,16 +37,88 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  double dolar;
+  double euro;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('\$ Conversor de Moedas \$'),
         centerTitle: true,
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.amber,
       ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(),
+      backgroundColor: Colors.black,
+      body: FutureBuilder<Map>(
+        future: getData(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return retornoTela('Carregando Dados');
+            default:
+              if (snapshot.hasError) {
+                return retornoTela('Erro ao Carregar Dados');
+              } else {
+                dolar = getCurrency(snapshot, 'USD');
+                euro = getCurrency(snapshot, 'EUR');
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Center(),
+                      Icon(
+                        Icons.monetization_on,
+                        size: 150.0,
+                        color: Colors.amber,
+                      ),
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Reais',
+                          labelStyle: TextStyle(
+                            color: Colors.amber,
+                          ),
+                          border: OutlineInputBorder(),
+                          prefixText: 'R\$ ',
+                          prefixStyle: TextStyle(color: Colors.amber),
+                        ),
+                        style: TextStyle(color: Colors.amber, fontSize: 25.0),
+                      ),
+                    ],
+                  ),
+                );
+              }
+          }
+        },
+      ),
     );
   }
+
+  getCurrency(AsyncSnapshot<Map> snapshot, String currency) =>
+      snapshot.data['results']['currencies'][currency]['buy'];
+}
+
+//   theme: ThemeData(
+//       hintColor: Colors.amber,
+//       primaryColor: Colors.white,
+//       inputDecorationTheme: InputDecorationTheme(
+//         enabledBorder:
+//             OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+//         focusedBorder:
+//             OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+//         hintStyle: TextStyle(color: Colors.amber),
+//       )),
+// ));
+Center retornoTela(String texto) {
+  return Center(
+    child: Text(
+      texto,
+      style: TextStyle(
+        color: Colors.amber,
+        fontSize: 25.0,
+      ),
+      textAlign: TextAlign.center,
+    ),
+  );
 }
