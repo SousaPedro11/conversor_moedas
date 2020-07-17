@@ -37,8 +37,24 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
+
   double dolar;
   double euro;
+
+  void _realChanged(String text) {
+    print(text);
+  }
+
+  void _dolarChanged(String text) {
+    print(text);
+  }
+
+  void _euroChanged(String text) {
+    print(text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,36 +71,31 @@ class _HomeState extends State<Home> {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
             case ConnectionState.waiting:
-              return retornoTela('Carregando Dados');
+              return buildSnapshotMessage('Carregando Dados');
             default:
               if (snapshot.hasError) {
-                return retornoTela('Erro ao Carregar Dados');
+                return buildSnapshotMessage('Erro ao Carregar Dados');
               } else {
                 dolar = getCurrency(snapshot, 'USD');
                 euro = getCurrency(snapshot, 'EUR');
                 return SingleChildScrollView(
+                  padding: EdgeInsets.all(10.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Center(),
                       Icon(
                         Icons.monetization_on,
                         size: 150.0,
                         color: Colors.amber,
                       ),
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Reais',
-                          labelStyle: TextStyle(
-                            color: Colors.amber,
-                          ),
-                          border: OutlineInputBorder(),
-                          prefixText: 'R\$ ',
-                          prefixStyle: TextStyle(color: Colors.amber),
-                        ),
-                        style: TextStyle(color: Colors.amber, fontSize: 25.0),
-                      ),
+                      buildTextField(
+                          'Reais', 'R\$ ', realController, _realChanged),
+                      Divider(),
+                      buildTextField(
+                          'Dolares', 'U\$ ', dolarController, _dolarChanged),
+                      Divider(),
+                      buildTextField(
+                          'Euros', '€ ', euroController, _euroChanged),
                     ],
                   ),
                 );
@@ -99,18 +110,7 @@ class _HomeState extends State<Home> {
       snapshot.data['results']['currencies'][currency]['buy'];
 }
 
-//   theme: ThemeData(
-//       hintColor: Colors.amber,
-//       primaryColor: Colors.white,
-//       inputDecorationTheme: InputDecorationTheme(
-//         enabledBorder:
-//             OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-//         focusedBorder:
-//             OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
-//         hintStyle: TextStyle(color: Colors.amber),
-//       )),
-// ));
-Center retornoTela(String texto) {
+Center buildSnapshotMessage(String texto) {
   return Center(
     child: Text(
       texto,
@@ -120,5 +120,24 @@ Center retornoTela(String texto) {
       ),
       textAlign: TextAlign.center,
     ),
+  );
+}
+
+Widget buildTextField(
+    String label, String prefix, TextEditingController controller, Function c) {
+  return TextField(
+    controller: controller,
+    keyboardType: TextInputType.number,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(
+        color: Colors.amber,
+      ),
+      border: OutlineInputBorder(),
+      prefixText: prefix,
+      prefixStyle: TextStyle(color: Colors.amber),
+    ),
+    style: TextStyle(color: Colors.amber, fontSize: 25.0),
+    onChanged: c,
   );
 }
