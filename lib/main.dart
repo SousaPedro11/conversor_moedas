@@ -98,7 +98,8 @@ class _HomeState extends State<Home> {
               return buildSnapshotMessage('Carregando Dados');
             default:
               if (snapshot.hasError) {
-                return buildSnapshotMessage('Erro ao Carregar Dados');
+                return buildSnapshotMessage(
+                    'Erro ao Carregar Dados: ${snapshot.error.toString()}');
               } else {
                 dolar = getCurrency(snapshot, 'USD');
                 euro = getCurrency(snapshot, 'EUR');
